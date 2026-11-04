@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Historical Dataset{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h2>Upload Historical Event Dataset</h2><p class="text-muted mb-0">Pandas will validate, clean, and import valid rows.</p></div>
+        <a href="{% url 'events:historical_dataset' %}" class="btn btn-outline-secondary">Back to Dataset</a>
+    </div>
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-dark">Upload and Process</button>
+            </form>
+            <p class="small text-muted mt-3 mb-0">Required columns: event_type, duration, expected_attendees, actual_attendees, catering_type, food_quantity, plastic_quantity, paper_quantity, material_quantity, actual_food_waste, actual_plastic_waste, actual_paper_waste, actual_material_waste, total_actual_waste, sustainability_score.</p>
+        </div>
+    </div>
+    {% if result %}
+        <div class="row g-3 mb-4">
+            <div class="col-md-6"><div class="border rounded p-3"><span class="text-muted">Valid rows imported</span><h3>{{ result.valid_rows|length }}</h3></div></div>
+            <div class="col-md-6"><div class="border rounded p-3"><span class="text-muted">Invalid rows skipped</span><h3>{{ result.invalid_rows|length }}</h3></div></div>
+        </div>
+        {% if result.invalid_rows %}
+            <div class="card border-danger shadow-sm"><div class="card-header bg-danger text-white">Invalid rows</div><div class="table-responsive"><table class="table mb-0"><thead><tr><th>CSV row</th><th>Validation errors</th></tr></thead><tbody>{% for row in result.invalid_rows %}<tr><td>{{ row.row_number }}</td><td>{{ row.errors|join:', ' }}</td></tr>{% endfor %}</tbody></table></div></div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+event_type,duration,expected_attendees,actual_attendees,catering_type,food_quantity,plastic_quantity,paper_quantity,material_quantity,actual_food_waste,actual_plastic_waste,actual_paper_waste,actual_material_waste,total_actual_waste,sustainability_score
+Conference,2,120,105,Buffet,90,20,15,35,8,3,2,5,18,76
+Conference,4,300,270,Plated,240,45,30,70,22,7,5,12,46,68
+Wedding,6,500,460,Plated,480,90,55,120,55,14,9,20,98,61
+Wedding,5,350,320,Buffet,330,70,45,95,38,12,7,16,73,66
+Seminar,3,100,88,Boxed Meals,70,15,25,30,6,2,4,5,17,81
+Festival,8,1000,850,Food Truck,900,180,120,260,110,30,20,44,204,52
+Corporate Event,2,180,165,Buffet,130,25,20,40,12,4,3,7,26,78
+Exhibition,7,420,380,Buffet,280,55,80,150,30,10,13,22,75,72
+College Event,5,700,590,Food Truck,500,120,90,180,68,22,16,31,137,57
+Community Event,4,250,230,Vegan,180,25,40,65,14,5,7,10,36,84
+Conference,3,220,200,Vegetarian,160,30,22,48,13,5,4,8,30,80
+Sports Event,6,800,680,Boxed Meals,600,140,100,210,75,25,18,35,153,58
+Wedding,7,600,530,Mixed,580,110,65,140,70,18,10,25,123,59
+Seminar,2,80,72,Vegetarian,55,10,18,25,4,1,3,4,12,86
+Exhibition,5,360,335,Buffet,250,48,70,125,24,8,11,19,62,74
+Festival,6,900,780,Vegan,700,100,110,220,62,17,19,37,135,69

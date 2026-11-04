@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h2>{{ event.event_name }} Attendance</h2><p class="text-muted mb-0">Expected: {{ event.expected_attendees }} | Registered: {{ event.registered_attendees }} | Actual: {{ event.actual_attendance }} | {{ event.attendance_percentage }}%</p></div>
+        <a href="{% url 'events:attendance_create' event.pk %}" class="btn btn-dark">Add Attendee</a>
+    </div>
+    <div class="table-responsive card shadow-sm border-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead><tr><th>Attendee</th><th>Registration ID</th><th>Contact</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for attendee in attendees %}
+                    <tr>
+                        <td>{{ attendee.attendee_name }}</td><td><code>{{ attendee.registration_id }}</code></td><td>{{ attendee.email }}<br>{{ attendee.phone }}</td>
+                        <td>{% if attendee.is_present %}<span class="badge bg-success">Present</span>{% else %}<span class="badge bg-secondary">Registered</span>{% endif %}</td>
+                        <td><a href="{% url 'events:attendance_detail' attendee.pk %}" class="btn btn-sm btn-outline-dark">View</a></td>
+                    </tr>
+                {% empty %}<tr><td colspan="5" class="text-center text-muted py-4">No attendees registered.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

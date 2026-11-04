@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Sustainable Event Planning{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-75 py-5">
+            <div class="col-lg-7">
+                <span class="badge rounded-pill hero-badge mb-3">Smart event management</span>
+                <h1 class="display-4 fw-bold mb-3">Plan sustainable events with confidence.</h1>
+                <p class="lead text-secondary mb-4">
+                    Manage attendees, vendors, budgets, and sustainability outcomes from one powerful platform built for modern event teams.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Get started</a>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary btn-lg px-4">Login</a>
+                </div>
+                <div class="d-flex flex-wrap gap-4 text-muted small fw-semibold">
+                    <span>♻️ Waste tracking</span>
+                    <span>📊 Insights dashboard</span>
+                    <span>🤝 Team collaboration</span>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="glass-card p-4 shadow-lg">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-success-subtle text-success">Live overview</span>
+                        <span class="text-muted small">+24.8%</span>
+                    </div>
+                    <div class="stat-grid">
+                        <div class="stat-box">
+                            <span class="label">Events</span>
+                            <strong>148</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span class="label">Waste reduced</span>
+                            <strong>36%</strong>
+                        </div>
+                        <div class="stat-box wide">
+                            <span class="label">Sustainability score</span>
+                            <strong>92/100</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">🌱</div>
+                <h4>Eco planning</h4>
+                <p>Track resource usage and reduce unnecessary waste before it happens.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">🧑‍💼</div>
+                <h4>Role-based access</h4>
+                <p>Give admins, organizers, and attendees the right permissions for every action.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card h-100">
+                <div class="feature-icon">📈</div>
+                <h4>Actionable insights</h4>
+                <p>Use dashboards to measure efficiency, attendance, and sustainability impact.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

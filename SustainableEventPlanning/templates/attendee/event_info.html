@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="dashboard-card shadow-lg border-0 rounded-4">
+        <div class="dashboard-header attendee-bg">
+            <div>
+                <span class="badge bg-warning-subtle text-warning-emphasis mb-2">{{ event.status }}</span>
+                <h2 class="mb-1 text-white">{{ event.event_name }}</h2>
+                <p class="mb-0 text-white-50">{{ event.event_type }} organized by {{ event.organizer_name }}</p>
+            </div>
+            <a href="{% url 'attendee:dashboard' %}" class="btn btn-light">Back to Dashboard</a>
+        </div>
+        <div class="p-4 p-md-5">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <h4 class="mb-3">Event Information</h4>
+                    <div class="row g-3">
+                        <div class="col-sm-6"><strong>Date:</strong> {{ event.event_date|date:"l, d M Y" }}</div>
+                        <div class="col-sm-6"><strong>Time:</strong> {{ event.start_time|time:"g:i A" }} - {{ event.end_time|time:"g:i A" }}</div>
+                        <div class="col-sm-6"><strong>Duration:</strong> {{ event.duration }} hour{{ event.duration|pluralize }}</div>
+                        <div class="col-sm-6"><strong>Venue:</strong> {{ event.venue }}</div>
+                        <div class="col-sm-6"><strong>Catering:</strong> {{ event.catering_type }}</div>
+                        <div class="col-sm-6"><strong>Food Service:</strong> {{ event.food_service_type }}</div>
+                    </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-body text-center">
+                            {% if registration %}
+                                <h5 class="mb-3">Your Registration</h5>
+                                {% if registration.qr_code %}
+                                    <img src="{{ registration.qr_code.url }}" alt="Your QR code for {{ event.event_name }}" class="img-fluid mb-3" style="max-width: 220px;">
+                                {% endif %}
+                                <p class="mb-1"><strong>Registration ID:</strong><br><code>{{ registration.registration_id }}</code></p>
+                                <p class="mb-0">
+                                    <strong>Check-in:</strong>
+                                    {% if registration.is_present %}
+                                        <span class="badge bg-success">Checked in</span>
+                                        {% if registration.check_in_time %}<br><small class="text-muted">{{ registration.check_in_time|date:"d M Y, g:i A" }}</small>{% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not checked in</span>
+                                    {% endif %}
+                                </p>
+                            {% elif is_open %}
+                                <h5 class="mb-2">Join this event</h5>
+                                <p class="text-muted">Register to receive your QR code for check-in at the venue.</p>
+                                <form method="post" action="{% url 'attendee:register_event' event.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-warning px-4">Register</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ attendee.attendee_name }} - Attendance{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0 mx-auto" style="max-width: 680px;">
+        <div class="card-header bg-dark text-white"><h3 class="mb-0">{{ attendee.attendee_name }}</h3><small>{{ event.event_name }}</small></div>
+        <div class="card-body text-center">
+            {% if attendee.qr_code %}<img src="{{ attendee.qr_code.url }}" alt="QR code for {{ attendee.attendee_name }}" class="img-fluid mb-3" style="max-width: 280px;">{% endif %}
+            <p class="mb-1"><strong>Registration ID:</strong> {{ attendee.registration_id }}</p>
+            <p class="mb-1"><strong>Email:</strong> {{ attendee.email }}</p>
+            <p><strong>Status:</strong> {% if attendee.is_present %}<span class="badge bg-success">Present{% if attendee.check_in_time %} at {{ attendee.check_in_time }}{% endif %}</span>{% else %}<span class="badge bg-secondary">Registered</span>{% endif %}</p>
+            {% if not attendee.is_present %}
+                <form method="post" action="{% url 'events:attendance_check_in' attendee.pk %}">{% csrf_token %}<button class="btn btn-success">Record Check-in</button></form>
+            {% endif %}
+        </div>
+        <div class="card-footer"><a href="{% url 'events:attendance_list' event.pk %}" class="btn btn-outline-secondary">Back to Attendance</a></div>
+    </div>
+</div>
+{% endblock %}

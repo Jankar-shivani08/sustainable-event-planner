@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Predicted vs Actual Waste{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <header class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div>
+            <p class="text-success fw-bold mb-1">POST-EVENT PERFORMANCE</p>
+            <h1 class="h2 mb-1">Predicted vs Actual Waste</h1>
+            <p class="text-muted mb-0">Completed events · quantities in kilograms</p>
+        </div>
+        <a href="{% url 'events:event_list' %}" class="btn btn-outline-dark">View Events</a>
+    </header>
+
+    <section class="row row-cols-1 row-cols-sm-2 row-cols-xl-5 g-3 mb-4" aria-label="Waste analysis summary">
+        <div class="col"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Events Compared</div><div class="h3 mb-0">{{ matched_event_count }} <span class="fs-6 text-muted">/ {{ completed_event_count }}</span></div></div></div></div>
+        <div class="col"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Average Predicted Total</div><div class="h3 mb-0">{% if average_predicted_total is not None %}{{ average_predicted_total|floatformat:2 }}{% else %}N/A{% endif %}<span class="fs-6 text-muted"> kg</span></div></div></div></div>
+        <div class="col"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Average Actual Total</div><div class="h3 mb-0">{% if average_actual_total is not None %}{{ average_actual_total|floatformat:2 }}{% else %}N/A{% endif %}<span class="fs-6 text-muted"> kg</span></div></div></div></div>
+        <div class="col"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Mean Absolute Total Error</div><div class="h3 mb-0">{% if mean_absolute_total_error is not None %}{{ mean_absolute_total_error|floatformat:2 }}{% else %}N/A{% endif %}<span class="fs-6 text-muted"> kg</span></div></div></div></div>
+        <div class="col"><div class="card h-100 border-0 shadow-sm"><div class="card-body"><div class="text-muted small">Mean Absolute Total % Error</div><div class="h3 mb-0">{% if has_mean_total_percentage_error %}{{ mean_total_percentage_error|floatformat:1 }}%{% else %}N/A{% endif %}</div></div></div></div>
+    </section>
+
+    <section class="card border-0 shadow-sm mb-4" aria-labelledby="waste-chart-heading">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 id="waste-chart-heading" class="h4 mb-1">Average Waste by Category</h2>
+            <p class="text-muted small mb-0">Mean predicted and actual quantities across events with both records.</p>
+        </div>
+        <div class="card-body px-4">
+            {% if matched_event_count %}
+                <div class="waste-chart-legend mb-3"><span><i class="waste-chart-swatch predicted"></i>Predicted</span><span><i class="waste-chart-swatch actual"></i>Actual</span></div>
+                <div class="waste-chart" role="img" aria-label="Grouped horizontal bar chart of average predicted and actual waste for five categories">
+                    {% for metric in chart_metrics %}
+                        <div class="waste-chart-row">
+                            <div class="waste-chart-label">{{ metric.label }}</div>
+                            <div class="waste-chart-bars">
+                                <div class="d-flex align-items-center gap-2"><div class="waste-chart-track flex-grow-1"><div class="waste-chart-bar predicted" style="width: {{ metric.predicted_width|floatformat:1 }}%"></div></div><span class="small text-nowrap">{{ metric.predicted_average|floatformat:2 }}</span></div>
+                                <div class="d-flex align-items-center gap-2"><div class="waste-chart-track flex-grow-1"><div class="waste-chart-bar actual" style="width: {{ metric.actual_width|floatformat:1 }}%"></div></div><span class="small text-nowrap">{{ metric.actual_average|floatformat:2 }}</span></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No completed events have both a prediction and an actual waste record yet.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="card border-0 shadow-sm mb-4" aria-labelledby="waste-comparisons-heading">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 id="waste-comparisons-heading" class="h4 mb-1">Event Comparisons</h2>
+            <p class="text-muted small mb-0">Absolute error = |predicted - actual|. Percentage error = absolute error / actual x 100.</p>
+        </div>
+        <div class="card-body p-0">
+            {% if comparison_rows %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 analysis-table">
+                        <thead class="table-light"><tr><th scope="col">Event</th><th scope="col">Measure</th><th scope="col">Predicted (kg)</th><th scope="col">Actual (kg)</th><th scope="col">Absolute Error (kg)</th><th scope="col">Percentage Error</th><th scope="col">Difference</th></tr></thead>
+                        <tbody>
+                            {% for row in comparison_rows %}
+                                <tr>
+                                    <td><a href="{% url 'events:event_detail' row.event.pk %}" class="fw-semibold">{{ row.event.event_name }}</a><div class="small text-muted">{{ row.event.event_date }}</div></td>
+                                    <th scope="row">{{ row.metric }}</th>
+                                    <td>{{ row.predicted|floatformat:2 }}</td>
+                                    <td>{{ row.actual|floatformat:2 }}</td>
+                                    <td>{{ row.absolute_error|floatformat:2 }}</td>
+                                    <td>{% if row.has_percentage_error %}{{ row.percentage_error|floatformat:1 }}%{% else %}<span class="text-muted">N/A</span>{% endif %}</td>
+                                    <td><span class="difference-indicator {{ row.direction }}">{{ row.difference_label }}{% if row.direction != 'exact' %} {{ row.difference_amount|floatformat:2 }} kg{% endif %}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted p-4 mb-0">No comparisons are available yet.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if pending_events %}
+        <section class="card border-0 shadow-sm mb-4" aria-labelledby="pending-analysis-heading">
+            <div class="card-header bg-white border-0 pt-4 px-4"><h2 id="pending-analysis-heading" class="h4 mb-0">Completed Events Awaiting Data</h2></div>
+            <div class="card-body pt-0">
+                <div class="table-responsive"><table class="table align-middle mb-0"><thead><tr><th>Event</th><th>Missing</th></tr></thead><tbody>
+                    {% for item in pending_events %}<tr><td><a href="{% url 'events:event_detail' item.event.pk %}">{{ item.event.event_name }}</a></td><td>{{ item.missing }}</td></tr>{% endfor %}
+                </tbody></table></div>
+            </div>
+        </section>
+    {% endif %}
+
+    <p class="small text-muted mb-0">Food totals include leftover food. Material totals include glass, metal, decoration, and other waste. Recycled and disposed amounts are excluded because they describe handling of waste, not additional waste categories. Mean absolute total percentage error is descriptive for the stored comparisons only; it is not a model-validation metric or evidence of prediction reliability.</p>
+</div>
+{% endblock %}

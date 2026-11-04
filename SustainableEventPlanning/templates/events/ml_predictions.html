@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}ML Predictions{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="mb-4">
+        <h2>Event Waste and Attendance Predictions</h2>
+        <p class="text-muted mb-0">Predictions use the selected trained model and eight planning features. Post-event outcomes are excluded to prevent data leakage.</p>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0"><div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}<div class="col-md-6"><label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>{% endfor %}
+                    </div>
+                    <button class="btn btn-dark mt-4">Generate Predictions</button>
+                </form>
+            </div></div>
+        </div>
+        <div class="col-lg-5">
+            {% if model_error %}<div class="alert alert-warning">{{ model_error }}<br>Use <code>python manage.py train_ml_models --csv training_data/sample_historical_events.csv</code> to train the models.</div>{% endif %}
+            {% if predictions %}<div class="card shadow-sm border-0"><div class="card-header bg-dark text-white"><h4 class="mb-0">Predicted Outcomes</h4></div><div class="card-body">{% for name, value in predictions.items %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ name|title }}</span><strong>{{ value|floatformat:2 }}</strong></div>{% endfor %}</div></div>{% else %}<div class="alert alert-light border">Train the five models, then submit event planning inputs to see predictions.</div>{% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+<div class="mb-4">
+    <h3 class="h5 mb-1">Event Portfolio</h3>
+    <p class="text-muted mb-0">Live totals and sustainability performance from the events available to your account.</p>
+</div>
+
+<section class="dashboard-metric-grid mb-5" aria-label="Dashboard summary">
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Total Events</div><div class="dashboard-metric-value">{{ dashboard.total_events }}</div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Upcoming Events</div><div class="dashboard-metric-value">{{ dashboard.upcoming_events }}</div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Completed Events</div><div class="dashboard-metric-value">{{ dashboard.completed_events }}</div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Total Attendees</div><div class="dashboard-metric-value">{{ dashboard.total_attendees }}</div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Predicted Waste</div><div class="dashboard-metric-value">{{ dashboard.predicted_waste|floatformat:1 }} <small class="fs-6">kg</small></div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Actual Waste</div><div class="dashboard-metric-value">{{ dashboard.actual_waste|floatformat:1 }} <small class="fs-6">kg</small></div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">Average Sustainability Score</div><div class="dashboard-metric-value">{% if dashboard.average_sustainability_score is not None %}{{ dashboard.average_sustainability_score|floatformat:1 }}{% else %}N/A{% endif %}<small class="fs-6">{% if dashboard.average_sustainability_score is not None %}%{% endif %}</small></div></article></div>
+    <div class="col"><article class="dashboard-metric-card p-3"><div class="dashboard-metric-label">High Risk Events</div><div class="dashboard-metric-value text-danger">{{ dashboard.high_risk_events }}</div></article></div>
+</section>
+
+<section class="mb-5" aria-labelledby="dashboard-analytics-title">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+        <div><h3 id="dashboard-analytics-title" class="h5 mb-1">Waste &amp; Sustainability Analytics</h3><p class="text-muted small mb-0">Predictions use the latest stored prediction for each event; actuals use its post-event waste record.</p></div>
+        <a href="{% url 'events:waste_analysis' %}" class="btn btn-sm btn-outline-success">Detailed Waste Analysis</a>
+    </div>
+    <div class="row g-3">
+        <div class="col-12 col-xl-8">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-3">Monthly Event Count <span class="text-muted fw-normal">· last 12 months</span></h4>
+                <div class="dashboard-chart-wrap"><canvas id="monthlyEventChart" role="img" aria-label="Monthly event count for the last 12 months"></canvas></div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-4">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-3">Waste Risk Distribution</h4>
+                <div class="dashboard-chart-wrap"><canvas id="riskDistributionChart" role="img" aria-label="Distribution of low, medium, and high risk event predictions"></canvas></div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-6">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-3">Waste by Event Type</h4>
+                <div class="dashboard-chart-wrap"><canvas id="eventTypeWasteChart" role="img" aria-label="Predicted and actual waste totals by event type"></canvas></div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-6">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-3">Predicted vs Actual Waste <span class="text-muted fw-normal">· kg</span></h4>
+                <div class="dashboard-chart-wrap"><canvas id="totalWasteChart" role="img" aria-label="Portfolio predicted and actual total waste comparison"></canvas></div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-6">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-3">Food / Plastic / Paper / Material Waste <span class="text-muted fw-normal">· kg</span></h4>
+                <div class="dashboard-chart-wrap"><canvas id="wasteCategoriesChart" role="img" aria-label="Predicted and actual waste by food, plastic, paper, and material category"></canvas></div>
+            </article>
+        </div>
+        <div class="col-12 col-xl-6">
+            <article class="dashboard-chart-card p-3 p-md-4">
+                <h4 class="h6 mb-1">Sustainability Score by Event</h4>
+                <p class="text-muted small mb-3">Latest checklist score per event with scored items; most recent 12 shown.</p>
+                <div class="dashboard-chart-wrap score-chart"><canvas id="sustainabilityScoreChart" role="img" aria-label="Latest sustainability checklist scores by event"></canvas></div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<p class="small text-muted">Waste quantities are summed from the latest event predictions and recorded actual waste. Sustainability scores are averaged across events with scored checklist items. Risk distribution counts the latest prediction per event.</p>

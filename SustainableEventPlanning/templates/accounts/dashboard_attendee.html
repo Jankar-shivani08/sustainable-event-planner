@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendee Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="dashboard-card shadow-lg border-0 rounded-4">
+        <div class="dashboard-header attendee-bg">
+            <div>
+                <span class="badge bg-warning-subtle text-warning-emphasis mb-2">Attendee access</span>
+                <h2 class="mb-1 text-white">Attendee Dashboard</h2>
+                <p class="mb-0 text-white-50">Welcome, {{ user.get_full_name|default:user.username }}. Find events and track your check-ins.</p>
+            </div>
+            <a href="{% url 'accounts:profile' %}" class="btn btn-light">Profile</a>
+        </div>
+        <div class="p-4 p-md-5">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="mini-stat bg-warning-subtle text-warning-emphasis">
+                        <span>Registered Events</span>
+                        <strong>{{ registrations|length }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mini-stat bg-success-subtle text-success-emphasis">
+                        <span>Checked In</span>
+                        <strong>{{ checked_in_count }}</strong>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mini-stat bg-primary-subtle text-primary-emphasis">
+                        <span>Upcoming Events</span>
+                        <strong>{{ upcoming_events|length }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="mt-5 mb-3">Available Upcoming Events</h4>
+            <div class="table-responsive card shadow-sm border-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Event</th><th>Date &amp; Time</th><th>Venue</th><th>Organizer</th><th></th></tr></thead>
+                    <tbody>
+                        {% for event in upcoming_events %}
+                            <tr>
+                                <td><a href="{% url 'attendee:event_info' event.pk %}" class="fw-semibold">{{ event.event_name }}</a><br><small class="text-muted">{{ event.event_type }}</small></td>
+                                <td>{{ event.event_date|date:"d M Y" }}<br><small class="text-muted">{{ event.start_time|time:"g:i A" }} - {{ event.end_time|time:"g:i A" }}</small></td>
+                                <td>{{ event.venue }}</td>
+                                <td>{{ event.organizer_name }}</td>
+                                <td class="text-end">
+                                    {% if event.pk in registered_event_ids %}
+                                        <span class="badge bg-success">Registered</span>
+                                    {% else %}
+                                        <form method="post" action="{% url 'attendee:register_event' event.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-warning">Register</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-4">No upcoming events are open for registration right now.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="mt-5 mb-3">My Registered Events</h4>
+            <div class="table-responsive card shadow-sm border-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Event</th><th>Date &amp; Venue</th><th>Registration ID</th><th>Check-in Status</th><th>QR Code</th></tr></thead>
+                    <tbody>
+                        {% for attendance in registrations %}
+                            <tr>
+                                <td><a href="{% url 'attendee:event_info' attendance.event.pk %}" class="fw-semibold">{{ attendance.event.event_name }}</a><br><small class="text-muted">{{ attendance.event.status }}</small></td>
+                                <td>{{ attendance.event.event_date|date:"d M Y" }}, {{ attendance.event.start_time|time:"g:i A" }}<br><small class="text-muted">{{ attendance.event.venue }}</small></td>
+                                <td><code>{{ attendance.registration_id }}</code></td>
+                                <td>
+                                    {% if attendance.is_present %}
+                                        <span class="badge bg-success">Checked in</span>
+                                        {% if attendance.check_in_time %}<br><small class="text-muted">{{ attendance.check_in_time|date:"d M Y, g:i A" }}</small>{% endif %}
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not checked in</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if attendance.qr_code %}
+                                        <a href="{{ attendance.qr_code.url }}" target="_blank" rel="noopener" title="Open QR code">
+                                            <img src="{{ attendance.qr_code.url }}" alt="QR code for {{ attendance.event.event_name }}" width="64" height="64">
+                                        </a>
+                                    {% else %}
+                                        <span class="text-muted small">Not available</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted py-4">You have not registered for any events yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-muted small mt-2 mb-0">Show your QR code or registration ID at the venue. The organizer records your check-in.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

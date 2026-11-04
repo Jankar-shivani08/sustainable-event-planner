@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Vendor{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Delete Vendor</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="mb-3">Are you sure you want to delete <strong>{{ vendor.vendor_name }}</strong>?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'events:vendor_detail' vendor.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

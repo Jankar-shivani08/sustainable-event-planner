@@ -1,0 +1,57 @@
+{{ dashboard.charts|json_script:"dashboard-chart-data" }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script>
+    (() => {
+        const data = JSON.parse(document.getElementById('dashboard-chart-data').textContent);
+        const colors = { green: '#1d7a5f', yellow: '#e7a900', blue: '#376b9c', red: '#bd4f45' };
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+        };
+        const draw = (canvasId, config) => {
+            const canvas = document.getElementById(canvasId);
+            if (canvas) new Chart(canvas, config);
+        };
+
+        draw('monthlyEventChart', {
+            type: 'bar',
+            data: { labels: data.monthly_events.labels, datasets: [{ label: 'Events', data: data.monthly_events.values, backgroundColor: colors.green, borderRadius: 4 }] },
+            options: { ...commonOptions, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+        });
+        draw('eventTypeWasteChart', {
+            type: 'bar',
+            data: { labels: data.event_type_waste.labels, datasets: [
+                { label: 'Predicted', data: data.event_type_waste.predicted, backgroundColor: colors.green, borderRadius: 3 },
+                { label: 'Actual', data: data.event_type_waste.actual, backgroundColor: colors.yellow, borderRadius: 3 },
+            ] },
+            options: { ...commonOptions, indexAxis: 'y', scales: { x: { beginAtZero: true } } },
+        });
+        draw('totalWasteChart', {
+            type: 'bar',
+            data: { labels: ['Portfolio total'], datasets: [
+                { label: 'Predicted', data: data.total_waste.predicted, backgroundColor: colors.green, borderRadius: 4 },
+                { label: 'Actual', data: data.total_waste.actual, backgroundColor: colors.yellow, borderRadius: 4 },
+            ] },
+            options: { ...commonOptions, scales: { y: { beginAtZero: true } } },
+        });
+        draw('wasteCategoriesChart', {
+            type: 'bar',
+            data: { labels: data.waste_categories.labels, datasets: [
+                { label: 'Predicted', data: data.waste_categories.predicted, backgroundColor: colors.green, borderRadius: 3 },
+                { label: 'Actual', data: data.waste_categories.actual, backgroundColor: colors.yellow, borderRadius: 3 },
+            ] },
+            options: { ...commonOptions, scales: { y: { beginAtZero: true } } },
+        });
+        draw('sustainabilityScoreChart', {
+            type: 'bar',
+            data: { labels: data.sustainability_scores.labels, datasets: [{ label: 'Score (%)', data: data.sustainability_scores.values, backgroundColor: colors.blue, borderRadius: 3 }] },
+            options: { ...commonOptions, indexAxis: 'y', scales: { x: { beginAtZero: true, max: 100 } } },
+        });
+        draw('riskDistributionChart', {
+            type: 'doughnut',
+            data: { labels: data.risk_distribution.labels, datasets: [{ data: data.risk_distribution.values, backgroundColor: [colors.green, colors.yellow, colors.red], borderWidth: 0 }] },
+            options: { ...commonOptions, cutout: '62%' },
+        });
+    })();
+</script>

@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">{{ event.event_name }}</h3>
+            <span class="badge bg-light text-primary">{{ event.status }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Event Type:</strong> {{ event.event_type }}</div>
+                <div class="col-md-6"><strong>Venue:</strong> {{ event.venue }}</div>
+                <div class="col-md-6"><strong>Date:</strong> {{ event.event_date }}</div>
+                <div class="col-md-6"><strong>Time:</strong> {{ event.start_time }} - {{ event.end_time }}</div>
+                <div class="col-md-6"><strong>Duration:</strong> {{ event.duration }} hours</div>
+                <div class="col-md-6"><strong>Expected Attendees:</strong> {{ event.expected_attendees }}</div>
+                <div class="col-md-6"><strong>Registered Attendees:</strong> {{ event.registered_attendees }}</div>
+                <div class="col-md-6"><strong>Actual Attendance:</strong> {{ event.actual_attendance }}</div>
+                <div class="col-md-6"><strong>Attendance Percentage:</strong> {{ event.attendance_percentage }}%</div>
+                <div class="col-md-6"><strong>Catering Type:</strong> {{ event.catering_type }}</div>
+                <div class="col-md-6"><strong>Food Service Type:</strong> {{ event.food_service_type }}</div>
+                <div class="col-md-6"><strong>Meals:</strong> {{ event.number_of_meals }}</div>
+                <div class="col-md-6"><strong>Vendors:</strong> {{ event.number_of_vendors }}</div>
+                <div class="col-md-6"><strong>Organizer:</strong> {{ event.organizer.get_full_name|default:event.organizer.username }}</div>
+                <div class="col-md-6"><strong>Created:</strong> {{ event.created_at }}</div>
+            </div>
+        </div>
+        <div class="card-footer d-flex flex-wrap gap-2">
+            {% if request.user == event.organizer or request.user.is_superuser or request.user.profile.is_admin %}
+                <a href="{% url 'events:event_update' event.pk %}" class="btn btn-primary">Edit</a>
+                <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-outline-danger">Delete</a>
+                {% if event.status == 'Completed' %}
+                    <a href="{% url 'events:waste_record' event.pk %}" class="btn btn-outline-success">{% if waste_record %}Update Waste Record{% else %}Record Post-Event Waste{% endif %}</a>
+                {% endif %}
+            {% endif %}
+            {% if plan %}
+                <a href="{% url 'events:resource_plan_detail' event.pk %}" class="btn btn-success">View Resource Plan</a>
+                <a href="{% url 'events:resource_plan_update' event.pk %}" class="btn btn-outline-success">Update Resources</a>
+            {% else %}
+                <a href="{% url 'events:resource_plan_create' event.pk %}" class="btn btn-success">Create Resource Plan</a>
+            {% endif %}
+            <a href="{% url 'events:vendor_list' event.pk %}" class="btn btn-info text-white">View Vendors</a>
+            <a href="{% url 'events:vendor_create' event.pk %}" class="btn btn-outline-info">Add Vendor</a>
+            <a href="{% url 'events:sustainability_dashboard' event.pk %}" class="btn btn-success">Sustainability Checklist</a>
+            <a href="{% url 'events:waste_prediction' %}?event={{ event.pk }}" class="btn btn-warning">Waste Prediction</a>
+            <a href="{% url 'events:recommendation_report' %}?event={{ event.pk }}" class="btn btn-outline-warning">Recommendations</a>
+            <a href="{% url 'events:attendance_list' event.pk %}" class="btn btn-dark">Manage Attendance</a>
+            <a href="{% url 'events:attendance_create' event.pk %}" class="btn btn-outline-dark">Add Attendee</a>
+            <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">Back to Events</a> 
+        </div>
+    </div>
+
+    {% if waste_record %}
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-success text-white"><h4 class="mb-0">Post-Event Waste</h4></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4"><strong>Actual Attendance:</strong> {{ waste_record.actual_attendance }}</div>
+                    <div class="col-md-4"><strong>Total Actual Waste:</strong> {{ waste_record.total_actual_waste }}</div>
+                    <div class="col-md-4"><strong>Recycled:</strong> {{ waste_record.recycled_waste }}</div>
+                    <div class="col-md-4"><strong>Disposed:</strong> {{ waste_record.disposed_waste }}</div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Attendance Overview</h4>
+            <span>{{ event.actual_attendance }}/{{ event.registered_attendees }} present</span>
+        </div>
+        <div class="card-body">
+            <div class="progress mb-3" role="progressbar" aria-valuenow="{{ event.attendance_percentage }}" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar bg-success" style="width: {{ event.attendance_percentage }}%">{{ event.attendance_percentage }}%</div>
+            </div>
+            {% if attendees %}
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead><tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                            {% for attendee in attendees|slice:':5' %}
+                                <tr>
+                                    <td>{{ attendee.attendee_name }}</td>
+                                    <td>{{ attendee.email }}</td>
+                                    <td>{% if attendee.is_present %}<span class="badge bg-success">Present</span>{% else %}<span class="badge bg-secondary">Registered</span>{% endif %}</td>
+                                    <td><a href="{% url 'events:attendance_detail' attendee.pk %}" class="btn btn-sm btn-outline-dark">View QR</a></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted mb-0">No attendees registered yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if plan %}
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Resource Totals</h4>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Food Total</div>
+                            <h4 class="mb-0">{{ plan.food_total }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Material Total</div>
+                            <h4 class="mb-0">{{ plan.material_total }}</h4>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3 h-100">
+                            <div class="text-muted small">Overall Total</div>
+                            <h4 class="mb-0">{{ plan.overall_total }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Sustainability Recommendations</h4>
+            <a href="{% url 'events:recommendation_report' %}?event={{ event.pk }}" class="btn btn-sm btn-dark">View Report</a>
+        </div>
+        <div class="card-body">
+            {% for recommendation in recommendations %}
+                <div class="border-start border-{{ recommendation.priority|lower }} border-4 ps-3 mb-3"><div class="d-flex justify-content-between gap-3"><strong>{{ recommendation.title }}</strong><span class="badge {% if recommendation.priority == 'High' %}bg-danger{% elif recommendation.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ recommendation.priority }}</span></div><p class="mb-0 text-muted">{{ recommendation.description }}</p></div>
+            {% empty %}<p class="text-muted mb-0">Generate a waste prediction to receive sustainability recommendations.</p>{% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

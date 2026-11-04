@@ -1,0 +1,14 @@
+Hello {{ user_name }},
+
+Thank you for registering.
+
+Your email verification OTP is:
+
+{{ otp_code }}
+
+This OTP is valid for 5 minutes.
+
+If you did not request this registration, you can ignore this email.
+
+Regards,
+Sustainable Event Planning & Waste Prediction System

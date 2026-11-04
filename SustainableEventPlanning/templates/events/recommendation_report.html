@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block title %}Sustainability Recommendations Report{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4"><div><span class="badge bg-warning-subtle text-warning-emphasis mb-2">Action report</span><h1 class="mb-1">Sustainability Recommendations</h1><p class="text-muted mb-0">Stored recommendations generated from event predictions and sustainability data.</p></div><a href="{% url 'events:waste_prediction' %}" class="btn btn-dark">Generate Prediction</a></div>
+    <form method="get" class="row g-2 mb-4"><div class="col-md-9"><select name="event" class="form-select"><option value="">All events</option>{% for event in events %}<option value="{{ event.pk }}" {% if selected_event == event.pk|stringformat:'s' %}selected{% endif %}>{{ event.event_name }}</option>{% endfor %}</select></div><div class="col-md-3"><button class="btn btn-outline-dark w-100">Filter Report</button></div></form>
+    <div class="row g-3">{% for recommendation in recommendations %}<div class="col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex justify-content-between gap-3 mb-2"><span class="text-muted small">{{ recommendation.event.event_name }} · {{ recommendation.category }}</span><span class="badge {% if recommendation.priority == 'High' %}bg-danger{% elif recommendation.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ recommendation.priority }}</span></div><h4>{{ recommendation.title }}</h4><p class="mb-2">{{ recommendation.description }}</p>{% if recommendation.metric_value is not None %}<small class="text-muted">Trigger metric: {{ recommendation.metric_value|floatformat:3 }}</small>{% endif %}<div class="small text-muted mt-2">Generated {{ recommendation.created_at }}</div></div></div></div>{% empty %}<div class="col-12"><div class="alert alert-light border">No stored recommendations found for the selected events.</div></div>{% endfor %}</div>
+</div>
+{% endblock %}

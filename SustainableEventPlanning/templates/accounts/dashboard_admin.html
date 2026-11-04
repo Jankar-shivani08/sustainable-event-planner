@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="dashboard-card shadow-lg border-0 rounded-4">
+        <div class="dashboard-header">
+            <div>
+                <span class="badge bg-success-subtle text-success mb-2">Admin access</span>
+                <h2 class="mb-1 text-white">Admin Dashboard</h2>
+                <p class="mb-0 text-white-50">Welcome, {{ user.get_full_name|default:user.username }}. Portfolio-wide event and waste performance.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'events:historical_dataset' %}" class="btn btn-success">Historical Dataset</a>
+                <a href="{% url 'events:ml_predictions' %}" class="btn btn-warning">ML Predictions</a>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-light">Profile</a>
+            </div>
+        </div>
+        <div class="p-4 p-md-5">
+            {% include 'accounts/_dashboard_content.html' %}
+            <div class="mt-4"><div class="d-flex justify-content-between align-items-center mb-2"><h4 class="mb-0">Latest Recommendations</h4><a href="{% url 'events:recommendation_report' %}" class="btn btn-sm btn-outline-dark">View Report</a></div>{% for recommendation in recommendations %}<div class="border-start border-warning border-4 ps-3 mb-2"><strong>{{ recommendation.title }}</strong><span class="text-muted"> · {{ recommendation.event.event_name }}</span></div>{% empty %}<p class="text-muted">No recommendations generated yet.</p>{% endfor %}</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    {% include 'accounts/_dashboard_charts.html' %}
+{% endblock %}

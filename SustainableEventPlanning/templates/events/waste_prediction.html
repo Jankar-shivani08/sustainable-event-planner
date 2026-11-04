@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Waste Prediction{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+        <div><span class="badge bg-warning-subtle text-warning-emphasis mb-2">ML planning insight</span><h1 class="mb-1">Waste Prediction</h1><p class="text-muted mb-0">Select an event to estimate attendance and waste from its resource plan.</p></div>
+        <a href="{% url 'events:event_list' %}" class="btn btn-outline-secondary">Back to Events</a>
+    </div>
+    <div class="card border-0 shadow-sm mb-4"><div class="card-body p-4">
+        <form method="post" class="row align-items-end g-3">
+            {% csrf_token %}<div class="col-md-9"><label for="{{ form.event.id_for_label }}" class="form-label">Event</label>{{ form.event }}{% for error in form.event.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</div>
+            <div class="col-md-3"><button class="btn btn-dark w-100" type="submit">Generate Waste Prediction</button></div>
+        </form>
+        {% if error %}<div class="alert alert-warning mt-3 mb-0">{{ error }}</div>{% endif %}
+        <p class="small text-muted mt-3 mb-0">Risk uses total predicted waste and waste per attendee. LOW requires both low limits; HIGH is triggered when either medium limit is exceeded. Current limits: LOW up to {{ thresholds.low_max_total_waste }} total units / {{ thresholds.low_max_waste_per_attendee }} per attendee, HIGH above {{ thresholds.medium_max_total_waste }} total units / {{ thresholds.medium_max_waste_per_attendee }} per attendee.</p>
+    </div></div>
+    {% if prediction %}
+        <div class="card border-0 shadow-sm mb-4"><div class="card-body p-4"><div class="d-flex flex-wrap justify-content-between align-items-start gap-3"><div><span class="text-muted small">Prediction Summary</span><h2 class="mb-1">{{ prediction.event.event_name }}</h2><p class="text-muted mb-0">Generated {{ prediction.created_at }}</p></div><span class="badge fs-6 {% if prediction.risk_level == 'Low' %}bg-success{% elif prediction.risk_level == 'Medium' %}bg-warning text-dark{% else %}bg-danger{% endif %}">{{ prediction.risk_level }} Waste Risk</span></div><div class="row g-3 mt-3"><div class="col-md-3"><div class="border rounded p-3 h-100"><span class="text-muted small">Predicted Attendance</span><strong class="d-block fs-3">{{ prediction.predicted_attendance|floatformat:0 }}</strong></div></div><div class="col-md-3"><div class="border rounded p-3 h-100"><span class="text-muted small">Total Waste</span><strong class="d-block fs-3">{{ prediction.total_predicted_waste|floatformat:2 }}</strong></div></div><div class="col-md-3"><div class="border rounded p-3 h-100"><span class="text-muted small">Waste Per Attendee</span><strong class="d-block fs-3">{{ prediction.waste_per_attendee|floatformat:3 }}</strong></div></div><div class="col-md-3"><div class="border rounded p-3 h-100"><span class="text-muted small">Model Version</span><small class="d-block text-break">{{ prediction.model_version }}</small></div></div></div></div></div>
+        <div class="row g-4"><div class="col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-dark text-white"><h4 class="mb-0">Waste Breakdown</h4></div><div class="card-body"><canvas id="wasteBreakdownChart" height="260"></canvas></div></div></div><div class="col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-success text-white"><h4 class="mb-0">Predicted Outcomes</h4></div><div class="card-body"><dl class="row mb-0"><dt class="col-8">Food Waste</dt><dd class="col-4 text-end">{{ prediction.predicted_food_waste|floatformat:2 }}</dd><dt class="col-8">Plastic Waste</dt><dd class="col-4 text-end">{{ prediction.predicted_plastic_waste|floatformat:2 }}</dd><dt class="col-8">Paper Waste</dt><dd class="col-4 text-end">{{ prediction.predicted_paper_waste|floatformat:2 }}</dd><dt class="col-8">Material Waste</dt><dd class="col-4 text-end">{{ prediction.predicted_material_waste|floatformat:2 }}</dd><dt class="col-8 border-top pt-2">Total Waste</dt><dd class="col-4 text-end border-top pt-2"><strong>{{ prediction.total_predicted_waste|floatformat:2 }}</strong></dd></dl></div></div></div></div>
+        <div class="card border-0 shadow-sm mt-4"><div class="card-header bg-warning text-dark"><h4 class="mb-0">Sustainability Recommendations</h4></div><div class="card-body">{% for recommendation in recommendations %}<div class="border-start border-{{ recommendation.priority|lower }} border-4 ps-3 mb-3"><div class="d-flex justify-content-between gap-3"><strong>{{ recommendation.title }}</strong><span class="badge {% if recommendation.priority == 'High' %}bg-danger{% elif recommendation.priority == 'Medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ recommendation.priority }}</span></div><p class="mb-0 text-muted">{{ recommendation.description }}</p></div>{% empty %}<p class="text-muted mb-0">No additional recommendations were triggered.</p>{% endfor %}<a href="{% url 'events:recommendation_report' %}?event={{ prediction.event.pk }}" class="btn btn-outline-dark btn-sm">Open Recommendations Report</a></div></div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if prediction_data %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{{ prediction_data|json_script:'prediction-data' }}
+<script>
+    const predictionData = JSON.parse(document.getElementById('prediction-data').textContent);
+    new Chart(document.getElementById('wasteBreakdownChart'), {
+        type: 'doughnut',
+        data: { labels: predictionData.labels, datasets: [{ data: predictionData.values, backgroundColor: ['#198754', '#dc3545', '#0d6efd', '#fd7e14'], borderWidth: 0 }] },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+</script>
+{% endif %}
+{% endblock %}

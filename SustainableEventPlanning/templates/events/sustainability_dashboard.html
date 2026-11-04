@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Sustainability | {{ event.event_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <p class="text-success text-uppercase small fw-bold mb-1">{{ event.event_name }}</p>
+            <h1 class="h2 mb-0">Sustainability Dashboard</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'events:sustainability_checklist_form' event.pk checklist.pk %}" class="btn btn-success">Update Checklist</a>
+            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-outline-secondary">Back to Event</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Overall score</div>
+                    <div class="display-5 fw-bold text-success">{{ overall_score }}<span class="fs-5 text-muted">/100</span></div>
+                    <div class="progress mt-3" role="progressbar" aria-valuenow="{{ overall_score }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar bg-success" style="width: {{ overall_score }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Categories assessed</div>
+                    <div class="display-5 fw-bold">{{ total_categories }}<span class="fs-5 text-muted">/9</span></div>
+                    <p class="mb-0 text-muted">Event sustainability coverage</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Checklist items</div>
+                    <div class="display-5 fw-bold">{{ checklist.items.count }}</div>
+                    <p class="mb-0 text-muted">Responses recorded</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-success text-white">
+            <h2 class="h5 mb-0">Category-wise score</h2>
+        </div>
+        <div class="card-body p-4">
+            {% for category, score in category_scores.items %}
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-semibold">{{ category }}</span>
+                        <span class="text-muted">{{ score }}/100</span>
+                    </div>
+                    <div class="progress" role="progressbar" aria-label="{{ category }} score" aria-valuenow="{{ score }}" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar {% if score >= 70 %}bg-success{% elif score >= 40 %}bg-warning{% else %}bg-danger{% endif %}" style="width: {{ score }}%"></div>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted mb-0">No checklist items have been recorded yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

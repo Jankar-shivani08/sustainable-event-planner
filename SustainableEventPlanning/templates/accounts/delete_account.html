@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden profile-shell">
+                <div class="card-body p-0">
+                    <div class="bg-danger p-4 p-md-5">
+                        <h2 class="mb-1 text-white">Delete Account</h2>
+                        <p class="mb-0 text-white-50">This permanently removes your account and cannot be undone.</p>
+                    </div>
+
+                    <div class="p-4 p-md-5">
+                        <p class="mb-2">Deleting <strong>{{ user.username }}</strong> ({{ user.email }}) will:</p>
+                        <ul class="mb-4">
+                            <li>Remove your profile and login. You will be logged out immediately.</li>
+                            {% if organized_events_count %}
+                                <li class="text-danger fw-semibold">
+                                    Delete the {{ organized_events_count }} event{{ organized_events_count|pluralize }} you organize,
+                                    with their predictions, recommendations, attendance, vendors, checklists and waste records.
+                                </li>
+                            {% endif %}
+                            <li>Keep any event registrations made with your email, as they are part of the organizer's attendance records.</li>
+                        </ul>
+
+                        <form method="post" novalidate>
+                            {% csrf_token %}
+                            <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                            {{ form.password }}
+                            {% for error in form.password.errors %}
+                                <div class="text-danger small mt-1">{{ error }}</div>
+                            {% endfor %}
+
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <button type="submit" class="btn btn-danger px-4">Delete My Account Permanently</button>
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

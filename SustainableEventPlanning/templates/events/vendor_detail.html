@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Vendor Details{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">{{ vendor.vendor_name }}</h3>
+            <span class="badge bg-light text-primary">{{ vendor.vendor_type }}</span>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6"><strong>Contact person:</strong> {{ vendor.contact_person }}</div>
+                <div class="col-md-6"><strong>Phone:</strong> {{ vendor.phone }}</div>
+                <div class="col-md-6"><strong>Email:</strong> {{ vendor.email }}</div>
+                <div class="col-md-6"><strong>Event:</strong> {{ vendor.event.event_name }}</div>
+                <div class="col-md-6"><strong>Sustainability rating:</strong> {{ vendor.sustainability_rating }}%</div>
+                <div class="col-md-6"><strong>Eco friendly:</strong> {{ vendor.is_eco_friendly|yesno:"Yes,No" }}</div>
+                <div class="col-12"><strong>Address:</strong> {{ vendor.address }}</div>
+            </div>
+
+            {% if checklist %}
+                <div class="mt-4">
+                    <h4 class="text-success">Vendor Sustainability Checklist</h4>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Question</th>
+                                    <th>Answer</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Avoids single-use plastic</td><td>{{ checklist.avoids_single_use_plastic }}</td></tr>
+                                <tr><td>Uses reusable containers</td><td>{{ checklist.uses_reusable_containers }}</td></tr>
+                                <tr><td>Provides waste segregation</td><td>{{ checklist.provides_waste_segmentation }}</td></tr>
+                                <tr><td>Uses eco-friendly materials</td><td>{{ checklist.uses_eco_friendly_materials }}</td></tr>
+                                <tr><td>Minimizes packaging</td><td>{{ checklist.minimizes_packaging }}</td></tr>
+                                <tr><td>Uses recyclable materials</td><td>{{ checklist.uses_recyclable_materials }}</td></tr>
+                                <tr><td>Has waste management practices</td><td>{{ checklist.has_waste_management_practices }}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="alert alert-success mt-3 mb-0">
+                        Sustainability score: <strong>{{ checklist.sustainability_score }}%</strong>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning mt-4 mb-0">
+                    No sustainability checklist is available for this vendor yet.
+                </div>
+            {% endif %}
+        </div>
+        <div class="card-footer d-flex flex-wrap gap-2">
+            <a href="{% url 'events:vendor_update' vendor.pk %}" class="btn btn-primary">Edit Vendor</a>
+            <a href="{% if checklist %}{% url 'events:vendor_checklist_update' vendor.pk %}{% else %}{% url 'events:vendor_checklist_create' vendor.pk %}{% endif %}" class="btn btn-success">{% if checklist %}Update{% else %}Add{% endif %} Sustainability Checklist</a>
+            <a href="{% url 'events:vendor_delete' vendor.pk %}" class="btn btn-outline-danger">Delete</a>
+            <a href="{% url 'events:event_detail' vendor.event.pk %}" class="btn btn-outline-secondary">Back to Event</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
