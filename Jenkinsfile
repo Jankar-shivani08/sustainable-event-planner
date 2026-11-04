@@ -14,10 +14,10 @@ pipeline {
         stage('Setup Python') {
             steps {
                 dir("${APP_DIR}") {
-                    sh '''
-                        python3 -m venv ${VENV_DIR}
-                        . ${VENV_DIR}/bin/activate
-                        pip install --upgrade pip
+                    bat '''
+                        python -m venv %VENV_DIR%
+                        call %VENV_DIR%\\Scripts\\activate.bat
+                        python -m pip install --upgrade pip
                         pip install -r requirements.txt
                     '''
                 }
@@ -27,8 +27,8 @@ pipeline {
         stage('Django System Check') {
             steps {
                 dir("${APP_DIR}") {
-                    sh '''
-                        . ${VENV_DIR}/bin/activate
+                    bat '''
+                        call %VENV_DIR%\\Scripts\\activate.bat
                         python manage.py check
                     '''
                 }
@@ -38,8 +38,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 dir("${APP_DIR}") {
-                    sh '''
-                        . ${VENV_DIR}/bin/activate
+                    bat '''
+                        call %VENV_DIR%\\Scripts\\activate.bat
                         python manage.py test
                     '''
                 }
@@ -50,7 +50,7 @@ pipeline {
     post {
         always {
             dir("${APP_DIR}") {
-                sh 'rm -rf ${VENV_DIR} || true'
+                bat 'if exist %VENV_DIR% rmdir /s /q %VENV_DIR%'
             }
         }
     }
