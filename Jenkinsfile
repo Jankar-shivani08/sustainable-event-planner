@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR     = 'SustainableEventPlanning'
-        VENV_DIR    = 'venv'
-        DOCKER_HUB  = 'your-dockerhub-username'  // Replace with your Docker Hub username
-        IMAGE_NAME  = 'sustainable-event-planner'
-    }
+    APP_DIR     = 'SustainableEventPlanning'
+    VENV_DIR    = 'venv'
+    DOCKER_HUB  = 'jankar-shivani08'   // your real Docker Hub username
+    IMAGE_NAME  = 'sustainable-event-planner'
+}
 
     stages {
         stage('Checkout') {
