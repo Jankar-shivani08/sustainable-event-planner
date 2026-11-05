@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-        APP_DIR  = 'SustainableEventPlanning'
-        VENV_DIR = 'venv'
+        APP_DIR     = 'SustainableEventPlanning'
+        VENV_DIR    = 'venv'
+        DOCKER_HUB  = 'your-dockerhub-username'  // Replace with your Docker Hub username
+        IMAGE_NAME  = 'sustainable-event-planner'
     }
 
     stages {
@@ -35,13 +37,20 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
+        stage('Docker Build') {
             steps {
                 dir("${APP_DIR}") {
-                    bat '''
-                        call %VENV_DIR%\\Scripts\\activate.bat
-                        python manage.py test
-                    '''
+                    bat "docker build -t ${env.DOCKER_HUB}/${env.IMAGE_NAME}:${env.BUILD_NUMBER} ."
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                script {
+                    docker.withRegistry('', 'docker-hub-credentials') {
+                        bat "docker push ${env.DOCKER_HUB}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}"
+                    }
                 }
             }
         }
